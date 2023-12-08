@@ -20,12 +20,15 @@
 
 (defparameter *document* (parse-input (input-file-path 1)))
 
+;; Part 1
+
 (defun calibration-value (string)
   (let ((ds (mapcar #'parse-integer (all-matches-as-strings "\\d" string))))
     (+ (* 10 (first ds)) (first (last ds)))))
 
 (defun part-a (&optional (document *document*))
-    (reduce #'+ (mapcar #'calibration-value document)))
+  (loop for line in document
+        summing (calibration-value line)))
 
 ;; Part 2
 
@@ -52,4 +55,5 @@
 
 
 (defun part-b (&optional (document *document*))
-  (reduce #'+ (mapcar #'calibration-value-full document)))
+  (loop for line in document
+        summing (calibration-value-full line)))
