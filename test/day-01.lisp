@@ -14,5 +14,9 @@
 
 (test part-1
   (is (= 142 (aoc2023-01::part-a (aoc2023-01::parse-input (test-input 1))))))
-;; (test part-2
-;;       (is (= 241861950 (day-1:part-b (day-01:parse-input (test-input "day-01"))))))
+
+(test calibration-value-full
+  (is (= 42 (aoc2023-01::calibration-value-full "four7seventeen3eightwo"))))
+
+(test part-2
+    (is (= 281 (aoc2023-01::part-b (aoc2023-01::parse-input (test-input 1.2))))))
