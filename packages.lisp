@@ -3,7 +3,9 @@
   (:use #:cl
         #:iterate)
   (:export #:define-day
-           #:input))
+           #:given
+           #:input
+           #:test))
 
 (eval
  `(progn

@@ -48,6 +48,10 @@
 (defun 5am-day-suite ()
   (intern (format nil "AOC-~4,'0D-~2,'0D" (get-current-year) (get-current-day))))
 
+(defun test (&optional suite)
+  "Runs the test suite for the current day's package."
+  (5am:run! (or suite (5am-day-suite))))
+
 (flet ((gen-answer-test (number answer)
          (let ((suite (5am-day-suite))
                (get-answer (intern (format nil "GET-ANSWER-~A" number))))
@@ -69,6 +73,13 @@
             (gen-answer-test 1 answer-1))
          ,(when answer-2
             (gen-answer-test 2 answer-2))))))
+
+(defmacro given (part-number &body body)
+  "Set's up a test for the examples given in the day's problem."
+  `(5am:test (,(intern (format nil "GIVEN-~D" part-number))
+              :suite ,(5am-day-suite))
+     ,@(loop for form in body
+             collect `(5am:is ,form))))
 
 ;; Input and parsing
 
