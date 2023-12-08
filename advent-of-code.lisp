@@ -81,6 +81,11 @@
      ,@(loop for form in body
              collect `(5am:is ,form))))
 
+(defmacro deftest (name &body body)
+  "Defines a test, leaving all details up to the caller."
+  `(5am:test (,name :suite ,(5am-day-suite))
+     ,@body))
+
 ;; Input and parsing
 
 (defun read-lines-from-file (filename)

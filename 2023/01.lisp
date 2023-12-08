@@ -53,6 +53,9 @@
         (last (reverse (ppcre:scan-to-strings (format nil "\\d|~A" (reverse +text-digit-pattern+)) (reverse string)))))
     (+ (* 10 (parse-integer-full first)) (parse-integer-full last))))
 
+(aoc:deftest calibration-value-full
+    (5am:is (= 42 (calibration-value-full "four7seventeen3eightwo"))))
+
 (defun get-answer-2 (&optional (document *document*))
   (loop for line in document
         summing (calibration-value-full line)))

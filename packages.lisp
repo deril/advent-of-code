@@ -3,6 +3,7 @@
   (:use #:cl
         #:iterate)
   (:export #:define-day
+           #:deftest
            #:given
            #:input
            #:test))
