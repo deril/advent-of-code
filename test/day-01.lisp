@@ -1,9 +1,9 @@
 (in-package #:aoc2023-test)
 
-(def-suite* day-01-all)
+(def-suite* day-01)
 
 (defun test-quasi ()
-  (run! 'day-01-all))
+  (run! 'day-01))
 
 (test parse-input
   (is (equal '("1abc2"

@@ -1,6 +1,6 @@
 (defpackage #:aoc2023-01
   (:use #:cl #:utils)
-  (:import-from #:cl-ppcre #:scan-to-strings)
+  (:import-from #:cl-ppcre #:all-matches-as-strings)
   (:export
    ;; #:parse-input
    #:part-a
@@ -15,14 +15,11 @@
           while line
           collect line)))
 
-(defvar *input* (parse-input (input-file-path 1)))
+(defparameter *document* (parse-input (input-file-path 1)))
 
-(defvar *matching-regex* "(\d)")
+(defun calibration-value (string)
+  (let ((ds (mapcar #'parse-integer (all-matches-as-strings "\\d" string))))
+    (+ (* 10 (first ds)) (first (last ds)))))
 
-(defun part-a (input)
-  (let ((matches (loop for line in input
-                       for match = (cl-ppcre:scan-to-strings *matching-regex* line)
-                       when match
-                         collect (parse-integer (first match)))))
-    (reduce #'+ matches))
-  )
+(defun part-a (&optional (document *document*))
+    (reduce #'+ (mapcar #'calibration-value document)))
