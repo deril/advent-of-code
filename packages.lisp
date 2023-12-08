@@ -1,7 +1,9 @@
 (defpackage #:advent-of-code
   (:nicknames #:aoc)
-  (:use #:cl)
-  (:export #:input))
+  (:use #:cl
+        #:iterate)
+  (:export #:define-day
+           #:input))
 
 (eval
  `(progn
@@ -10,7 +12,7 @@
                          for package-name = (intern (format nil "ADVENT-OF-CODE-~D-~2,'0D" year number)
                                                     (find-package "KEYWORD"))
                          for nickname = (intern (format nil "AOC-~D-~2,'0D" year number)
-                                                 (find-package "KEYWORD"))
+                                                (find-package "KEYWORD"))
                          collect `(defpackage ,package-name
                                     (:nicknames ,nickname)
                                     (:use :cl))))))

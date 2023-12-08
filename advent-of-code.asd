@@ -1,11 +1,15 @@
-(defsystem "aoc2023"
+(defsystem "advent-of-code"
   :author "Dmytro Bihniak"
   :description "Solutions for the Advent of Code 2023 event."
   :license "ISC"
 
   :depends-on (:cl-ppcre
                :cl-utilities
-               :parseq)
+               :drakma
+               :fiveam
+               :iterate
+               :parseq
+               :py-configparser)
 
   :serial t
   :components #.(append '((:file "packages"))
@@ -31,5 +35,5 @@
                  (:file "helper")
                  (:file "day-01"))))
   )
-  ;; :perform (test-op (op c)
-  ;;                   (symbol-call :fiveam :run! 'aoc2023-test:day-01)))
+;; :perform (test-op (op c)
+;;                   (symbol-call :fiveam :run! 'aoc2023-test:day-01)))
