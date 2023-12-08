@@ -3,16 +3,16 @@
   :description "Solutions for the Advent of Code 2023 event."
   :license "ISC"
 
-  :depends-on ("cl-ppcre"
-               "cl-utilities"
-               "parseq")
+  :depends-on (:cl-ppcre
+               :cl-utilities
+               :parseq)
 
   :serial t
-  :components ((:module "src"
-                :serial t
-                :components
-                ((:file "utils")
-                 (:file "day-01"))))
+  :components #.(append '((:file "packages"))
+                        (loop for year in '(2023)
+                              append (loop for n from 1 to 25
+                                           collect (list :file (format nil "~D/~2,'0D" year n)))))
+
   :in-order-to ((test-op (test-op "aoc2023/test"))))
 
 (defsystem "aoc2023/test"
@@ -30,5 +30,6 @@
                 ((:file "packages")
                  (:file "helper")
                  (:file "day-01"))))
-  :perform (test-op (op c)
-                    (symbol-call :fiveam :run! 'aoc2023-test:day-01)))
+  )
+  ;; :perform (test-op (op c)
+  ;;                   (symbol-call :fiveam :run! 'aoc2023-test:day-01)))

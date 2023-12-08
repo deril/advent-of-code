@@ -1,5 +1,7 @@
 (defpackage #:utils
   (:use :cl)
+  (:import-from #:cl-ppcre
+                #:scan-to-strings)
   (:export
    #:*year*
    #:input-file-path
@@ -89,3 +91,22 @@ file."
          (command `("firefox" ,uri)))
     (uiop:run-program command :force-shell t :output nil :error-output t)
     nil))
+
+(defun get-current-day ()
+  (multiple-value-bind (match groups)
+      (scan-to-strings "^ADVENT-OF-CODE-\\d+-(\\d+)"
+                       (package-name *package*))
+    (when (not match)
+      (error "Current package does not have an Advent of Code day: ~A" *package*))
+    (parse-integer (svref groups 0))))
+
+(defun input (&key year day)
+  "Fetches and returns for a problem. Call with no parameters to
+fetch the Advent of Code input associated with the current package."
+  (let ((real-day (or day (get-current-day)))
+        (real-year (or year (get-current-year))))
+    (let ((input-file
+            (cond
+              (t (fetch-input real-day real-year)))))
+      (cond
+        (t (read-lines-from-file input-file))))))
