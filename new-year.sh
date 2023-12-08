@@ -17,7 +17,8 @@ if [ -n "$(git status --porcelain)" ]; then
     exit 1
 fi
 
-last_year=$(ls -d ???? | tail -1)
+# last_year=$(ls -d ???? | tail -1)
+last_year=2022
 new_year=$(echo $last_year + 1 | bc)
 
 echo -n "New year is ${new_year}.  Is that correct? [Y/n] "
