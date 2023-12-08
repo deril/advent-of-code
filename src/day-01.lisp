@@ -6,7 +6,6 @@
   (:import-from #:alexandria
                 #:eswitch)
   (:export
-   ;; #:parse-input
    #:part-a
    #:part-b))
 
