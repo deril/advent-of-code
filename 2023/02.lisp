@@ -76,7 +76,6 @@
               games))
 
 (defun game-power (contents)
-  (assert (fset:subbag? (fset:bag 'red 'green 'blue) contents))
   (fset:reduce #'*
                (fset:image (alexandria:curry #'fset:multiplicity contents)
                            (fset:convert 'fset:bag (fset:convert 'fset:set contents)))))
