@@ -7,7 +7,9 @@
                :cl-utilities
                :drakma
                :fiveam
+               :fset
                :iterate
+               :lquery
                :parseq
                :py-configparser)
 

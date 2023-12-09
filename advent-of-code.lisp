@@ -97,6 +97,16 @@
         (car lines)
         lines)))
 
+(defun apply-parse-rule (parse-rule lines)
+  (flet ((parse-line (line)
+           (multiple-value-bind (result parsedp) (parseq:parseq parse-rule line)
+             (when (not parsedp)
+               (error (format nil "Failed to parse \"~A\" as ~A" line parse-rule)))
+             result)))
+    (if (consp lines)
+        (mapcar #'parse-line lines)
+        (parse-line lines))))
+
 (defun fetch-input (day year)
   "Gets the input for the given day and year. You should probably use 'input' instead."
   (let* ((session-cookie (make-instance 'drakma:cookie
@@ -121,13 +131,83 @@
           (write-line data cache))))
     cache-file))
 
-(defun input (&key year day)
+(defun input (&key year day parse-line)
   "Fetches and returns for a problem. Call with no parameters to
-fetch the Advent of Code input associated with the current package."
+fetch the Advent of Code input associated with the current package.
+
+If PARSE-LINE is not provided, the data will be split at any newlines
+and returned as a list of strings. If there are no newlines, a single
+string will be returned (not a list).
+
+If PARSE-LINE is provided, it should be a symbol for a parseq rule. The
+input will be split at newlines and the parsing rule will be applied
+separately to each line. If any line fails to parse, an error will be
+signaled."
+
   (let ((real-day (or day (get-current-day)))
         (real-year (or year (get-current-year))))
     (let ((input-file
             (cond
               (t (fetch-input real-day real-year)))))
       (cond
-        (t (read-lines-from-file input-file))))))
+        (parse-line
+         (apply-parse-rule parse-line (read-lines-from-file input-file)))
+        (t
+         (read-lines-from-file input-file))))))
+
+(defun submit (part answer &key day year)
+  "Submits the answer for the given year, day, and part.  (DAY and YEAR
+  are taken from the current package if not specified)."
+  (let* ((real-day  (or day  (get-current-day)))
+         (real-year (or year (get-current-year)))
+         (url (format nil "https://adventofcode.com/~A/day/~A/answer" real-year real-day))
+         (session-cookie (make-instance 'drakma:cookie
+                                        :name "session"
+                                        :domain "adventofcode.com"
+                                        :value (get-config-key *config-key-session*)))
+         (cookie-jar (make-instance 'drakma:cookie-jar
+                                    :cookies (list session-cookie))))
+    (multiple-value-bind (data return-code)
+        (drakma:http-request
+         url
+         :method :post
+         :parameters (list (cons "level" (format nil "~A" part))
+                           (cons "answer" (format nil "~A" answer)))
+         :cookie-jar cookie-jar
+         :user-agent *user-agent-string*)
+      (assert (= 200 return-code)
+              (real-day real-year part)
+              "Error code when submitting answer for ~4,'0D-12-~2,'0D, part ~A: ~A"
+              real-year real-day part data)
+      (let ((docroot (lquery:$ (initialize data))))
+        (lquery:$1 docroot "article" (render-text))))))
+
+(parseq:defrule integer-string ()
+    (and (? "-") (+ digit))
+  (:string)
+  (:function #'parse-integer))
+
+;;; Handles patterns of the following forms:
+;;;
+;;;  * a
+;;;  * a and b
+;;;  * a and b and c
+;;;  * a, b, and c
+;;;  * a, b, c
+;;;  * a, b and c
+;;;
+(parseq:defrule comma-list (subrule)
+    (and (* (and subrule (or ", and " ", " "," " and "))) subrule)
+  (:destructure (beginning last)
+                (nconc (mapcar #'first beginning) (list last))))
+
+(5am:test (comma-list :suite :aoc)
+  (let ((pairs '(((1) "1")
+                 ((1 2) "1 and 2")
+                 ((1 2 3) "1 and 2 and 3")
+                 ((1 2 3) "1, 2, and 3")
+                 ((1 2 3) "1, 2, 3")
+                 ((1 2 3) "1,2,3")
+                 ((1 2 3) "1, 2 and 3"))))
+    (iter (for (result input) in pairs)
+      (5am:is (equal result (parseq:parseq '(comma-list integer-string) input))))))

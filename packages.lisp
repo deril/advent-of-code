@@ -2,10 +2,13 @@
   (:nicknames #:aoc)
   (:use #:cl
         #:iterate)
-  (:export #:define-day
+  (:export #:comma-list
+           #:define-day
            #:deftest
            #:given
            #:input
+           #:integer-string
+           #:submit
            #:test))
 
 (eval
