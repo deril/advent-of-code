@@ -1,7 +1,7 @@
 (defsystem "advent-of-code"
   :author "Dmytro Bihniak"
   :description "Solutions for the Advent of Code 2023 event."
-  :license "ISC"
+  :license "GNU GPLv3"
 
   :depends-on (:cl-ppcre
                :cl-utilities
