@@ -11,6 +11,14 @@
            #:submit
            #:test))
 
+(defpackage #:point
+  (:use #:cl
+        #:iterate)
+  (:export #:point
+           #:make-point
+           #:x
+           #:y))
+
 (eval
  `(progn
     ,@(loop for year in '(2023)

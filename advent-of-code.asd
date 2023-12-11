@@ -15,6 +15,7 @@
 
   :serial t
   :components #.(append '((:file "packages")
+                          (:file "point")
                           (:file "advent-of-code"))
                         (loop for year in '(2023)
                               append (loop for n from 1 to 25
