@@ -17,8 +17,7 @@ if [ -n "$(git status --porcelain)" ]; then
     exit 1
 fi
 
-# last_year=$(ls -d ???? | tail -1)
-last_year=2022
+last_year=$(ls -d ???? | tail -1)
 new_year=$(echo $last_year + 1 | bc)
 
 echo -n "New year is ${new_year}.  Is that correct? [Y/n] "
@@ -44,4 +43,4 @@ perl -pi -e "/DEFSUITE-MARKER/ and print \"(5am:def-suite :aoc-${new_year} :in :
 perl -pi -e "/YEAR-MARKER/ and s/${last_year}/${last_year} ${new_year}/" advent-of-code.asd packages.lisp
 
 git add $new_year advent-of-code.lisp advent-of-code.asd packages.lisp
-git ci -m "Add year ${new_year}"
+git commit -m "Add year ${new_year}"

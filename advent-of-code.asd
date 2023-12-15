@@ -17,6 +17,6 @@
   :components #.(append '((:file "packages")
                           (:file "point")
                           (:file "advent-of-code"))
-                        (loop for year in '(2023)
+                        (loop for year in '(2015 2023) ; YEAR-MARKER - do not edit this line.
                               append (loop for n from 1 to 25
                                            collect (list :file (format nil "~D/~2,'0D" year n))))))
