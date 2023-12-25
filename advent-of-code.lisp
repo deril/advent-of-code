@@ -25,7 +25,7 @@
   (multiple-value-bind (match groups)
       (ppcre:scan-to-strings "^ADVENT-OF-CODE-(\\d+)"
                              (package-name *package*))
-    (when (not match)
+    (unless match
       (error "Current package does not have an Advent of Code year: ~A" *package*))
     (parse-integer (svref groups 0))))
 
@@ -33,7 +33,7 @@
   (multiple-value-bind (match groups)
       (ppcre:scan-to-strings "^ADVENT-OF-CODE-\\d+-(\\d+)"
                              (package-name *package*))
-    (when (not match)
+    (unless match
       (error "Current package does not have an Advent of Code day: ~A" *package*))
     (parse-integer (svref groups 0))))
 
@@ -101,7 +101,7 @@
 (defun apply-parse-rule (parse-rule lines)
   (flet ((parse-line (line)
            (multiple-value-bind (result parsedp) (parseq:parseq parse-rule line)
-             (when (not parsedp)
+             (unless parsedp
                (error (format nil "Failed to parse \"~A\" as ~A" line parse-rule)))
              result)))
     (if (consp lines)
@@ -211,4 +211,4 @@ signaled."
                  ((1 2 3) "1,2,3")
                  ((1 2 3) "1, 2 and 3"))))
     (iter (for (result input) in pairs)
-      (5am:is (equal result (parseq:parseq '(comma-list integer-string) input))))))
+      (5am:is (eql result (parseq:parseq '(comma-list integer-string) input))))))
