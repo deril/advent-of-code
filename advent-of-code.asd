@@ -10,6 +10,7 @@
                :fset
                :iterate
                :lquery
+               :md5
                :parseq
                :py-configparser)
 
