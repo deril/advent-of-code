@@ -19,7 +19,7 @@
 
 (defun nice-string-p (string)
   (and (not (cl-ppcre:scan "ab|cd|pq|xy" string))
-       (cl-ppcre:scan "[aeiou].*[aeiou].*[aeiou]" string)
+       (cl-ppcre:scan "([aeiou].*){3,}" string)
        (cl-ppcre:scan "(\\w)\\1" string)))
 
 (defun get-answer-1 (&optional (strings *strings*))
