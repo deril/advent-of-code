@@ -1,6 +1,6 @@
 (in-package :aoc-2015-06)
 
-(aoc:define-day 543903 nil)
+(aoc:define-day 543903 14687245)
 
 ;; Parsing
 
@@ -33,29 +33,50 @@
 
 ;; Part 1
 
-(defparameter *part-1-grid*)
+(defvar *light-grid*)
 
-(defun follow-instruction (instruction)
-  (let ((command (fset:@ instruction 0))
-        (begin (fset:@ instruction 1))
-        (end (fset:@ instruction 2)))
-    (loop for x from (point:x begin) to (point:x end)
-          do (loop for y from (point:y begin) to (point:y end)
-                   do (ecase command
-                        ((TURN-ON) (setf (aref *part-1-grid* x y) 1))
-                        ((TURN-OFF) (setf (aref *part-1-grid* x y) 0))
-                        ((TOGGLE) (setf (aref *part-1-grid* x y) (logxor (aref *part-1-grid* x y) 1))))))))
+(defun part-1-command-interpretation (command x y)
+  (ecase command
+    ((TURN-ON) (setf (aref *light-grid* x y) 1))
+    ((TURN-OFF) (setf (aref *light-grid* x y) 0))
+    ((TOGGLE) (setf (aref *light-grid* x y) (logxor (aref *light-grid* x y) 1)))))
 
-(defun follow-instructions (instructions)
+(defun follow-instruction (command begin end interpretation)
+  (loop for x from (point:x begin) to (point:x end)
+        do (loop for y from (point:y begin) to (point:y end)
+                 do (funcall interpretation command x y))))
+
+(defun follow-instructions (instructions interpretation)
   (dolist (instruction instructions)
-    (follow-instruction instruction)))
+    (let ((command (fset:@ instruction 0))
+          (begin (fset:@ instruction 1))
+          (end (fset:@ instruction 2)))
+      (follow-instruction command begin end interpretation))))
 
 (defun get-answer-1 (&optional (instructions *instructions*))
-  (setf *part-1-grid* (make-array '(1000 1000) :initial-element 0))
-  (follow-instructions instructions)
+  (setf *light-grid* (make-array '(1000 1000) :element-type 'bit :initial-element 0))
+  (follow-instructions instructions #'part-1-command-interpretation)
   (count 1 (loop for x from 0 to 999
                  append (loop for y from 0 to 999
-                              collect (aref *part-1-grid* x y)))))
+                              collect (aref *light-grid* x y)))))
 
 (aoc:given 1
-  (= 500 (get-answer-1 *example*)))
+  (= 998996 (get-answer-1 *example*)))
+
+;; Part 2
+
+(defun part-2-command-interpretation (command x y)
+  (ecase command
+    ((TURN-ON) (incf (aref *light-grid* x y)))
+    ((TURN-OFF) (decf (aref *light-grid* x y) (min 1 (aref *light-grid* x y))))
+    ((TOGGLE) (incf (aref *light-grid* x y) 2))))
+
+(defun get-answer-2 (&optional (instructions *instructions*))
+  (setf *light-grid* (make-array '(1000 1000) :element-type 'integer :initial-element 0))
+  (follow-instructions instructions #'part-2-command-interpretation)
+  (loop for x from 0 to 999
+        summing (loop for y from 0 to 999
+                      summing (aref *light-grid* x y))))
+
+(aoc:given 2
+  (= 1001996 (get-answer-2 *example*)))
