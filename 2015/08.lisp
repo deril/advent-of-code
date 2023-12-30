@@ -1,6 +1,6 @@
 (in-package :aoc-2015-08)
 
-(aoc:define-day 1371 nil)
+(aoc:define-day 1371 2117)
 
 ;; Input
 
@@ -20,3 +20,10 @@
 
 (aoc:given 1
   (= 12 (get-answer-1 *examle-list*)))
+
+;; Part 2
+
+(defun get-answer-2 (&optional (list *list*))
+  (loop for string in list
+        summing (- (length (prin1-to-string string))
+                   (length string))))
