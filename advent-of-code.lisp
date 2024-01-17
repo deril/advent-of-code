@@ -129,7 +129,7 @@
                 (day year)
                 "Error code when fetching data for ~4,'0D-12-~2,'0D: ~A" year day data)
         (with-open-file (cache cache-file :direction :output)
-          (write-line data cache))))
+          (write-string (string-right-trim '(#\NewLine) data) cache))))
     cache-file))
 
 (defun input (&key year day parse-line)

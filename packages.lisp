@@ -11,6 +11,10 @@
            #:submit
            #:test))
 
+(defpackage #:permutation
+  (:use #:cl)
+  (:export #:visit-permutations))
+
 (defpackage #:point
   (:use #:cl
         #:iterate)

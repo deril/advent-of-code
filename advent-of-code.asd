@@ -16,6 +16,7 @@
 
   :serial t
   :components #.(append '((:file "packages")
+                          (:file "permutation")
                           (:file "point")
                           (:file "advent-of-code"))
                         (loop for year in '(2015 2023) ; YEAR-MARKER - do not edit this line.
