@@ -33,4 +33,4 @@
                                                 (find-package "KEYWORD"))
                          collect `(defpackage ,package-name
                                     (:nicknames ,nickname)
-                                    (:use :cl))))))
+                                    (:use :cl :iterate))))))
