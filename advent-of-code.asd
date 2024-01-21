@@ -3,7 +3,8 @@
   :description "Solutions for the Advent of Code 2023 event."
   :license "GNU GPLv3"
 
-  :depends-on (:cl-ppcre
+  :depends-on (:com.inuoe.jzon
+               :cl-ppcre
                :cl-utilities
                :drakma
                :fiveam
