@@ -1,6 +1,6 @@
 (in-package :aoc-2015-13)
 
-(aoc:define-day 733 nil)
+(aoc:define-day 733 725)
 
 ;; Parsing
 
@@ -11,22 +11,30 @@
   (:lambda (name)
     (intern name :keyword)))
 
-(parseq:defrule happiness-sign ()
-    (or "gain" "lose"))
-
 (parseq:defrule happiness ()
-    (and name " would " happiness-sign " " (aoc:integer-string) " happiness units by sitting next to " name ".")
+    (and name " would " (or "gain" "lose") " " (aoc:integer-string) " happiness units by sitting next to " name ".")
   (:choose 0 2 4 6)
   (:lambda (name1 sign value name2)
     (let ((reatl-value (if (string= sign "gain") value (- value))))
-      (cons (list name1 name2) reatl-value))))
+      (list name1 name2 reatl-value))))
 
 ;; Input
+
+(defun build-matrix (tokenized-input)
+  (let* ((nodes (sort (remove-duplicates (mapcar #'first tokenized-input))
+                      #'string<))
+         (matrix (make-array (list (length nodes) (length nodes))
+                             :element-type 'integer
+                             :initial-element 0)))
+    (iter (for (source target adjustment) in tokenized-input)
+      (setf (aref matrix (position source nodes) (position target nodes))
+            adjustment))
+    matrix))
 
 (defparameter *happiness-list*
   (aoc:input :parse-line 'happiness))
 
-(defparameter *example-happiness*
+(defparameter *example-happiness-list*
   (mapcar (alexandria:curry #'parseq:parseq 'happiness)
           '("Alice would gain 54 happiness units by sitting next to Bob."
             "Alice would lose 79 happiness units by sitting next to Carol."
@@ -43,34 +51,40 @@
 
 ;; Part 1
 
-(defun happiness-between (names happiness-list)
-  (let ((happiness1 (assoc names happiness-list :test #'equal))
-        (happiness2 (assoc (reverse names) happiness-list :test #'equal)))
-    (if (and happiness1 happiness2)
-        (+ (cdr happiness1) (cdr happiness2))
-        (error "No happiness between people ~A" names))))
+(defun happiness-change (happiness-matrix sitting)
+  (iter (for source in-vector sitting with-index i)
+    (for left = (svref sitting (mod (1- i) (length sitting))))
+    (for right = (svref sitting (mod (1+ i) (length sitting))))
+    (summing (aref happiness-matrix source left))
+    (summing (aref happiness-matrix source right))))
 
-(defun all-names (happiness-list)
-  (remove-duplicates
-   (alexandria:flatten
-    (mapcar #'car happiness-list))))
-
-(defun happiness-for-sitting (names happiness-list)
-  (loop for name1 in names
-        for name2 in (cdr names)
-        sum (happiness-between (list name1 name2) happiness-list) into happiness
-        finally (return (+ happiness (happiness-between (list name2 (first names)) happiness-list)))))
-
-(defun calculate-sitting (happiness-list)
-  (let ((happiness-values nil))
+(defun maximum-happiness (happiness-matrix)
+  (let* ((number-of-people (array-dimension happiness-matrix 0))
+         (max-sitting (make-array number-of-people
+                                  :element-type 'integer
+                                  :initial-contents (iter (for i below number-of-people) (collect i))))
+         (max-happiness (happiness-change happiness-matrix max-sitting)))
     (permutation:visit-permutations
      (lambda (sitting)
-       (push (happiness-for-sitting sitting happiness-list) happiness-values))
-     (all-names happiness-list))
-    happiness-values))
+       (let ((happiness (happiness-change happiness-matrix sitting)))
+         (when (> happiness max-happiness)
+           (setf max-happiness happiness))))
+     max-sitting
+     :copy nil)
+    max-happiness))
 
 (defun get-answer-1 (&optional (happiness-list *happiness-list*))
-  (apply #'max (calculate-sitting happiness-list)))
+  (let ((happiness-matrix (build-matrix happiness-list)))
+    (maximum-happiness happiness-matrix)))
 
 (aoc:given 1
-  (= 330 (get-answer-1 *example-happiness*)))
+  (= 330 (get-answer-1 *example-happiness-list*)))
+
+;; Part 2
+
+(defun add-me (happiness-list)
+  (build-matrix (cons '(:me :me 0) happiness-list)))
+
+(defun get-answer-2 (&optional (happiness-list *happiness-list*))
+  (let ((happiness-matrix (add-me happiness-list)))
+    (maximum-happiness happiness-matrix)))
