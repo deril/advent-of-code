@@ -1,11 +1,21 @@
 (in-package :aoc-2015-15)
 
-(aoc:define-day 18965440 nil)
+(aoc:define-day 18965440 15862900)
 
 ;; Parsing
 
 (parseq:defrule ingredient ()
-    (and (and (+ alpha)) ": capacity " (aoc:integer-string) ", durability " (aoc:integer-string) ", flavor " (aoc:integer-string) ", texture " (aoc:integer-string) ", calories " (aoc:integer-string))
+    (and (and (+ alpha))
+         ": capacity "
+         (aoc:integer-string)
+         ", durability "
+         (aoc:integer-string)
+         ", flavor "
+         (aoc:integer-string)
+         ", texture "
+         (aoc:integer-string)
+         ", calories "
+         (aoc:integer-string))
   (:choose 2 4 6 8 10))
 
 ;; Input
@@ -34,10 +44,12 @@
               collect (max 0
                            (loop for i below rows
                                  sum (* (aref amounts i) (aref ingredients i j)))))
-      (* capacity durability flavor texture))))
+      (values
+       (* capacity durability flavor texture)
+       calories))))
 
 (defun proportions-generator (n)
-  (let ((result (make-array n :initial-contents (append (make-list (1- n) :initial-element 0) (list 0)))))
+  (let ((result (make-array n :initial-element 0)))
     (labels ((overflow ()
                (let ((index (position-if (lambda (x) (> x 100)) result)))
                  (when index
@@ -53,8 +65,7 @@
                  (when (> (aref result index) 100)
                    (progn
                      (overflow)
-                     (next-sequence))
-                   )))
+                     (next-sequence)))))
              (update-result ()
                (next-sequence)
                (cond ((= (aref result 0) 100) nil) ;; no more combinations
@@ -75,3 +86,20 @@
 
 (aoc:given 1
   (= 62842880 (get-answer-1 *example-ingredients*)))
+
+;; Part 2
+
+(defun best-score-500-calories (ingredients)
+  (let ((generator (proportions-generator (array-dimension ingredients 0))))
+    (loop for amounts = (funcall generator)
+          while amounts
+          for (score calories) = (multiple-value-list (score amounts ingredients))
+          when (= calories 500)
+            maximize score into best
+          finally (return best))))
+
+(defun get-answer-2 (&optional (ingredients *ingredients*))
+  (best-score-500-calories ingredients))
+
+(aoc:given 2
+  (= 57600000 (best-score-500-calories *example-ingredients*)))
