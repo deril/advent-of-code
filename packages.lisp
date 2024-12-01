@@ -25,7 +25,7 @@
 
 (eval
  `(progn
-    ,@(loop for year in '(2015 2023) ; YEAR-MARKER - do not edit this line.
+    ,@(loop for year in '(2015 2023 2024) ; YEAR-MARKER - do not edit this line.
             append (loop for number from 1 to 25
                          for package-name = (intern (format nil "ADVENT-OF-CODE-~D-~2,'0D" year number)
                                                     (find-package "KEYWORD"))
