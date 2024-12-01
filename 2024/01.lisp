@@ -1,6 +1,6 @@
 (in-package :aoc-2024-01)
 
-(aoc:define-day nil nil)
+(aoc:define-day 1879048 21024792)
 
 ;;; Parsing
 
