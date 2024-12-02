@@ -5,6 +5,7 @@
   (:export #:comma-list
            #:define-day
            #:deftest
+           #:extract-ints
            #:given
            #:input
            #:integer-string

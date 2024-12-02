@@ -213,3 +213,11 @@ signaled."
                  ((1 2 3) "1, 2 and 3"))))
     (iter (for (result input) in pairs)
       (5am:is (eql result (parseq:parseq '(comma-list integer-string) input))))))
+
+(defun extract-ints (string)
+  (let ((result (mapcar #'parse-integer
+                        (ppcre:all-matches-as-strings "[-+]?\\d+" string
+                                                      :sharedp t))))
+    (if (endp (cdr result))
+        (car result)
+        result)))
