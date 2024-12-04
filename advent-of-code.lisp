@@ -221,3 +221,9 @@ signaled."
     (if (endp (cdr result))
         (car result)
         result)))
+
+;;;; Miscellaneous
+
+(defun cref (array complex-number)
+  "Use a complex number to index a two-dimensional array."
+  (aref array (realpart complex-number) (imagpart complex-number)))

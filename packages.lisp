@@ -2,7 +2,8 @@
   (:nicknames #:aoc)
   (:use #:cl
         #:iterate)
-  (:export #:comma-list
+  (:export #:cref
+           #:comma-list
            #:define-day
            #:deftest
            #:extract-ints
