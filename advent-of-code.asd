@@ -5,6 +5,7 @@
 
   :depends-on (:alexandria
                :com.inuoe.jzon
+               :cl-digraph
                :cl-ppcre
                :cl-utilities
                :drakma
