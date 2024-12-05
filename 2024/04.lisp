@@ -5,16 +5,8 @@
 ;;; Input
 
 (defun to-2d-array (lines)
-  (let* ((rows (length lines))
-         (cols (length (first lines)))
-         (array (make-array (list rows cols) :initial-element #\Space)))
-    (iter
-      (for i below rows)
-      (for line in lines)
-      (iter
-        (for j below cols)
-        (setf (aref array i j) (char line j))))
-    array))
+  (make-array (list (length lines) (length (first lines)))
+              :initial-contents lines))
 
 (defparameter *example* (to-2d-array
                          '("MMMSXXMASM"
@@ -58,7 +50,6 @@
 
 (aoc:given 1
   (= 18 (get-answer-1 *example*)))
-
 
 ;;; Part 2
 
