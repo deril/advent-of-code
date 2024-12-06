@@ -20,10 +20,19 @@
 (defpackage #:point
   (:use #:cl
         #:iterate)
+  (:shadow #:=
+           #:+
+           #:<
+           #:mod)
   (:export #:point
            #:make-point
            #:x
-           #:y))
+           #:y
+           #:=
+           #:+
+           #:<
+           #:mod
+           #:turn))
 
 (eval
  `(progn
