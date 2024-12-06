@@ -131,15 +131,11 @@
       unless (fset:contains? obstructions candidate-obstruction)
         count (stuck-in-loop-p (fset:with obstructions candidate-obstruction) (build-guard guard-args)))))
 
-
 (defun build-guard (guard-args)
   (apply #'make-guard guard-args))
 
 (defun get-answer-2 (&optional (guard-args *guard-args*) (obstructions *obstructions*))
   (additional-obstructions obstructions guard-args))
-
-
-(defparameter *example-guard* (apply #'make-guard *example-guard-args*))
 
 (aoc:given 2
   (= 6 (get-answer-2 *example-guard-args* *example-obstructions*)))
