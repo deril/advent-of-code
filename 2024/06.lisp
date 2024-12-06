@@ -123,19 +123,21 @@
            (otherwise
             (move guard))))))
 
-(defun additional-obstructions (obstructions guard-args)
-  (let* ((guard (build-guard guard-args))
-         (all-paths (fset:convert 'list (all-paths obstructions guard))))
-    (loop
-      for candidate-obstruction in all-paths
-      unless (fset:contains? obstructions candidate-obstruction)
-        count (stuck-in-loop-p (fset:with obstructions candidate-obstruction) (build-guard guard-args)))))
-
 (defun build-guard (guard-args)
   (apply #'make-guard guard-args))
+(declaim (inline build-guard))
 
 (defun get-answer-2 (&optional (guard-args *guard-args*) (obstructions *obstructions*))
-  (additional-obstructions obstructions guard-args))
+  (let* ((guard (build-guard guard-args))
+         (all-paths (all-paths obstructions guard)))
+    (fset:reduce
+     #'(lambda (acc candidate-obstruction)
+         (declare (fixnum acc))
+         (when (stuck-in-loop-p (fset:with obstructions candidate-obstruction) (build-guard guard-args))
+           (incf acc))
+         acc)
+     all-paths
+     :initial-value 0)))
 
 (aoc:given 2
   (= 6 (get-answer-2 *example-guard-args* *example-obstructions*)))
