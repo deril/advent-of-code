@@ -222,8 +222,35 @@ signaled."
         (car result)
         result)))
 
-;;;; Miscellaneous
+(defun parse-grid-to-array (lines &key (key #'identity))
+  "Parses a sequence of strings, where the lines form a 2D grid.  Returns a
+  2D array of the values.  Note that the array will be row-major, with the
+  y coordinate coming first.
 
-(defun cref (array complex-number)
-  "Use a complex number to index a two-dimensional array."
-  (aref array (realpart complex-number) (imagpart complex-number)))
+  Will call KEY on each character to determine what value to put in the
+  map."
+  (let ((result (make-array (list (length lines) (length (first lines)))))
+        (row 0))
+    (dolist (line lines)
+      (dotimes (col (length line))
+        (setf (aref result row col) (funcall key (schar line col))))
+      (incf row))
+    result))
+
+(defun parse-grid-to-map (lines &key (key #'identity))
+  "Parses a sequence of strings, where the lines form a 2D grid.  Returns a
+  map from points to values.
+
+  Will call KEY on each character to determine what value to put in the
+  map.  If KEY returns NIL, no entry will be made."
+  (flet ((parse-line (line row)
+           (reduce (lambda (result col)
+                     (let ((value (funcall key (schar line col))))
+                       (if value
+                           (fset:with result
+                                      (point:make-point col row)
+                                      value)
+                           result)))
+                   (alexandria:iota (length line))
+                   :initial-value (fset:empty-map))))
+    (reduce #'fset:map-union (mapcar #'parse-line lines (alexandria:iota (length lines))))))

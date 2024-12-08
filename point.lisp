@@ -86,6 +86,21 @@
     (t
      (map-coordinates #'cl:+ points))))
 
+(defun - (point &rest more-points)
+  "Subtracts MORE-POINTS from POINT, coordinatewise.  With only one
+  parameter, negates POINT."
+  (declare (type point point)
+           (type (or null (cons point)) more-points))
+  (if (endp more-points)
+      (map-coordinates #'cl:- (list point))
+      (map-coordinates #'cl:- (list point (apply #'+ more-points)))))
+
+(defun * (point scalar)
+  "Multiplies each coordinate of POINT by SCALAR."
+  (declare (type point point)
+           (type real scalar))
+  (map-coordinates (lambda (x) (cl:* x scalar)) (list point)))
+
 (defun mod (point divisor-point)
   "Returns a point where each coordinate in POINT is modulo the
   corresponding coordinate in DIVISOR-POINT."

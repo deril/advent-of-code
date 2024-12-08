@@ -10,6 +10,9 @@
            #:given
            #:input
            #:integer-string
+           #:loop-n-window
+           #:parse-grid-to-array
+           #:parse-grid-to-map
            #:submit
            #:test))
 
@@ -22,6 +25,8 @@
         #:iterate)
   (:shadow #:=
            #:+
+           #:-
+           #:*
            #:<
            #:mod)
   (:export #:point
@@ -30,6 +35,8 @@
            #:y
            #:=
            #:+
+           #:-
+           #:*
            #:<
            #:mod
            #:turn))
