@@ -6,6 +6,8 @@
            #:comma-list
            #:define-day
            #:deftest
+           #:digit-list
+           #:digit-vector
            #:extract-ints
            #:given
            #:input

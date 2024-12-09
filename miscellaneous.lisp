@@ -11,3 +11,65 @@
         while (nthcdr (1- n) el)
         until (apply function (subseq el 0 n))
         finally (return (+ i (1- n)))))
+
+(defmacro-driver (FOR var DIGITS-OF number
+                      &optional BASE (base 10) FROM (direction 'right))
+  "Each digit of a number.  DIRECTION is either LEFT or RIGHT and indicates
+   the direction in which the number's digits will be processed.  RIGHT is
+   slightly more efficient."
+  (when (and (string/= "RIGHT" (symbol-name direction))
+             (string/= "LEFT" (symbol-name direction)))
+    (error "DIRECTION must be either LEFT or RIGHT, not ~A." direction))
+  (let ((b (if (integerp base)
+               base
+               (gensym "BASE")))
+        (n (gensym "N"))
+        (divisor (if (and (integerp base)
+                          (string= "RIGHT" (symbol-name direction)))
+                     base
+                     (gensym "DIVISOR")))
+        (init-n (if (integerp number)
+                    number
+                    (gensym "INIT-N")))
+        (quotient (gensym "QUOTIENT"))
+        (remainder (gensym "REMAINDER"))
+        (kwd (if generate 'generate 'for))
+        (from-right (string= "RIGHT" (symbol-name direction))))
+    `(progn
+       ,(when (symbolp b)
+          `(with ,b = ,base))
+       (with ,n = nil)
+       ,(when (symbolp init-n)
+          `(with ,init-n = ,number))
+       ,(when (symbolp divisor)
+          `(with ,divisor = ,(if from-right
+                                 b
+                                 `(expt ,b (floor (log ,init-n ,b))))))
+       (,kwd ,var next (progn
+                         (when (and ,n (zerop ,(if from-right
+                                                   n
+                                                   divisor)))
+                           (terminate))
+                         (multiple-value-bind (,quotient ,remainder)
+                             (truncate (or ,n ,init-n)
+                                       ,divisor)
+                           ,(when (not from-right)
+                              `(setf ,divisor (truncate ,divisor ,b)))
+                           (setf ,n ,(if from-right
+                                         quotient
+                                         remainder))
+                           ,(if from-right
+                                remainder
+                                quotient)))))))
+
+(defun digit-list (num &optional (base 10))
+  (declare (type (integer 0) num)
+           (type (integer 2 36) base))
+  (iter (for d digits-of num base base)
+    (declare (type (integer 0 35) d))
+    (collecting d at beginning)))
+
+(defun digit-vector (num &optional (base 10))
+  (declare (type (integer 0) num)
+           (type (integer 2 36) base))
+  (coerce (digit-list num base) 'simple-vector))
