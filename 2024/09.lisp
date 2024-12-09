@@ -1,15 +1,13 @@
 (in-package :aoc-2024-09)
 
-(aoc:define-day 6386640365805 nil)
+(aoc:define-day 6386640365805 6423258376982)
 
 ;;; Input
 
-(defparameter *example* (parse-integer "2333133121414131402"))
-(defparameter *input* (parse-integer (aoc:input)))
+(defparameter *example* "2333133121414131402")
+(defparameter *input* (aoc:input))
 
 ;;; Part 1
-;;; (+ 0 2 4 3 4 5 12 14 16)
-
 
 (defun calc-sum (file-id files-left unpacked-position)
   (iter
@@ -17,84 +15,110 @@
     (for position from unpacked-position)
     (summing (* file-id position))))
 
-(defun calculate-checksum (input max-file-id)
-  (labels ((iteration (lfile-id rfile-id lindex rindex position checksum op)
-             (case op
-               (file
-                (format t "operation: file, unpacking ~A files, unpacked position ~A, current file-id ~A" (aref input lindex) position lfile-id))
-               (empty
-                (format t "operation: empty, try to fill ~A spaces, ~A files available, unpacked position ~A, current file-id ~A" (aref input lindex) (aref input rindex) position rfile-id)))
-             ;; lfile-id - file-id of the left file. It should increase by 1 when the left file is unpacked.
-             ;; rfile-id - file-id of the right file. It should decrease by 1 when the right file is moved.
-             ;; lindex - cursor of the left file.
-             ;; rindex - cursor of the right file.
-             ;; position - current position in the unpacked file.
-             ;; checksum - current checksum we accumulate.
-             ;; op - operation to perform. It can be 'file or 'empty.
-             ;; if (aref input lindex) is -1, then we have processed empty state.
-             ;; if (aref input rindex) is -1, then we have moved the right file.
-             (if (> lindex rindex)
-                 checksum
-                 (case op
-                   (file
-                    (iteration
-                     (1+ lfile-id)
-                     rfile-id
-                     (1+ lindex)
-                     rindex
-                     (+ position (aref input lindex))
-                     (+ checksum (calc-sum lfile-id (aref input lindex) position))
-                     'empty))
-                   (empty
-                    (let ((could-fill-empty-space-p (signum (- (aref input lindex)
-                                                               (aref input rindex))))
-                          (tmp-checksum (calc-sum rfile-id (min (aref input rindex) (aref input lindex)) position))
-                          (file-count-we-can-fill (min (aref input rindex) (aref input lindex)))
-                          )
-                      (case could-fill-empty-space-p
-                        (1
-                         (setf (aref input lindex) (- (aref input lindex) file-count-we-can-fill)
-                               (aref input rindex) -1))
-                        (-1
-                         (setf (aref input rindex) (- (aref input rindex) file-count-we-can-fill)
-                               (aref input lindex) -1))
-                        (0
-                         (setf (aref input lindex) -1
-                               (aref input rindex) -1)))
-                      (iteration
-                       lfile-id
-                       (if (minusp (aref input rindex)) (1- rfile-id) rfile-id) ;; if we have moved the right file, then we should decrease the file-id.
-                       (if (minusp (aref input lindex)) (1+ lindex) lindex) ;; if we have processed empty state, then we should increase the cursor.
-                       (if (minusp (aref input rindex)) (- rindex 2) rindex) ;; if we have moved the right file, then we should decrease the cursor.
-                       (+ position file-count-we-can-fill)
-                       (+ checksum tmp-checksum)
-                       (if (minusp (aref input lindex)) 'file 'empty) ;; if we have processed empty state, then we should move to the next file.
-                       )))))))
-    (iteration 0 max-file-id 0 (- (length input) 1) 0 0 'file)))
+(defun disk (input)
+  (labels ((collect-data (result position)
+             (if (<= (length input) position)
+                 result
+                 (let ((status (if (evenp position) 'taken 'empty)))
+                   (collect-data
+                    (fset:with-last result
+                      (list :status status
+                            :size (digit-char-p (schar input position))
+                            :id (floor position 2)))
+                    (1+ position))))))
+    (collect-data (fset:empty-seq) 0)))
+
+(defun move-files (disk)
+  (labels ((compact-memory (i j)
+             (when (>= j i)
+               (let ((head (fset:lookup disk i))
+                     (tail (fset:lookup disk j)))
+                 (if (and (eq (getf head :status) 'taken))
+                     (compact-memory (1+ i) j) ;; head is full
+                     (case (getf tail :status) ;; head is empty
+                       (taken
+                        (case (signum (- (getf tail :size) (getf head :size)))
+                          (1
+                           (setf (getf tail :size) (- (getf tail :size) (getf head :size))
+                                 (getf head :status) 'taken
+                                 (getf head :id) (getf tail :id))
+                           (compact-memory (1+ i) j))
+                          (0
+                           (setf (getf head :status) 'taken
+                                 (getf head :id) (getf tail :id)
+                                 (getf tail :status) 'empty)
+                           (compact-memory (1+ i) (1- j)))
+                          (-1
+                           (setf disk (fset:insert
+                                       disk i
+                                       (list :status 'taken
+                                             :size (getf tail :size)
+                                             :id (getf tail :id)))
+                                 (getf head :size) (- (getf head :size) (getf tail :size))
+                                 (getf tail :status) 'empty)
+                           (compact-memory i (1- j)))))
+                       (empty
+                        (compact-memory i (1- j)))))))))
+    (compact-memory 0 (1- (fset:size disk)))
+    disk))
+
+(defun calculate-checksum (disk)
+  (let ((position 0))
+    (fset:reduce
+     #'(lambda (acc block)
+         (if (eq (getf block :status) 'taken)
+             (let ((sum (calc-sum (getf block :id) (getf block :size) position)))
+               (setf position (+ position (getf block :size)))
+               (+ acc sum))
+             (progn
+               (setf position (+ position (getf block :size)))
+               acc)))
+     disk
+     :initial-value 0)))
 
 (defun get-answer-1 (&optional (input *input*))
-  (let ((array (aoc:digit-vector input)))
-    (calculate-checksum array (floor (length array) 2))))
+  (calculate-checksum (move-files (disk input))))
 
 (aoc:given 1
   (= 1928 (get-answer-1 *example*)))
 
-;; 5 4 3 2 1
-;; 0 0 0 0 0 . . . . 1 1 1 . . 2
-;; 0 0 0 0 0 2 . . . 1 1 1 . . .
-;; 0 0 0 0 0 2 1 1 1 . . . . . .
-;; (+ (* 0 0) (* 0 1) (* 0 2) (* 0 3) (* 0 4) (* 2 5) (* 1 6) (* 1 7) (* 1 8)) = 31
-;;
-;; 1 2 3 4 5
-;; 0 . . 1 1 1 . . . . 2 2 2 2 2
-;; 0 2 2 1 1 1 . . . . 2 2 2 . .
-;; 0 2 2 1 1 1 2 2 2 . . . . . .
-;; (+ (* 0 0) (* 2 1) (* 2 2) (* 1 3) (* 1 4) (* 1 5) (* 2 6) (* 2 7) (* 2 8)) = 60
-;;
-;; 1 2 0 3 4 5 1
-;; 0 . . . . . 2 2 2 2 . . . . . 3
-;; 0 3 . . . . 2 2 2 2 . . . . . .
-;; 0 3 2 2 2 2 . . . . . . . . . .
-;; (+ (* 0 0) (* 3 1) (* 2 2) (* 2 3) (* 2 4) (* 2 5)) = 31
-
 ;;; Part 2
+
+(defun move-blocks (disk)
+  (labels ((compact-memory (i j)
+             (when (plusp j)
+               (if (> j i)
+                   (let ((head (fset:lookup disk i))
+                         (tail (fset:lookup disk j)))
+                     (if (and (eq (getf tail :status) 'empty))
+                         (compact-memory i (1- j)) ;; tail is empty
+                         (case (getf head :status) ;; tail is taken
+                           (empty
+                            (case (signum (- (getf tail :size) (getf head :size)))
+                              (1 ;; tail is bigger
+                               (compact-memory (1+ i) j))
+                              (0 ;; same size
+                               (setf (getf head :status) 'taken
+                                     (getf head :id) (getf tail :id)
+                                     (getf tail :status) 'empty)
+                               (compact-memory 0 (1- j)))
+                              (-1 ;; head is bigger
+                               (setf disk (fset:insert
+                                           disk i
+                                           (list :status 'taken
+                                                 :size (getf tail :size)
+                                                 :id (getf tail :id)))
+                                     (getf head :size) (- (getf head :size) (getf tail :size))
+                                     (getf tail :status) 'empty)
+                               (compact-memory 0 (1- j)))))
+                           (taken
+                            (compact-memory (1+ i) j)))))
+                   (compact-memory 0 (1- j))))))
+    (compact-memory 0 (1- (fset:size disk)))
+    disk))
+
+(defun get-answer-2 (&optional (input *input*))
+  (calculate-checksum (move-blocks (disk input))))
+
+(aoc:given 2
+  (= 2858 (get-answer-2 *example*)))
