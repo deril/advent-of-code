@@ -1,6 +1,6 @@
 (in-package :aoc-2024-10)
 
-(aoc:define-day 737 nil)
+(aoc:define-day 737 1619)
 
 ;;; Input
 

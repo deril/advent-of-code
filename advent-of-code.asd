@@ -8,6 +8,7 @@
                :cl-digraph
                :cl-ppcre
                :cl-utilities
+               :defmemo
                :drakma
                :fiveam
                :fset
