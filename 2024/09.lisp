@@ -1,6 +1,6 @@
 (in-package :aoc-2024-09)
 
-(aoc:define-day 6386640365805 6423258376982)
+(aoc:define-day 6386640365805 6423258376982) ;; Part 2 is too slow, need to optimize
 
 ;;; Input
 

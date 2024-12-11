@@ -1,6 +1,6 @@
 (in-package :aoc-2024-06)
 
-(aoc:define-day 5095 1933)
+(aoc:define-day 5095 1933) ;; Part 2 is too slow, need to optimize
 
 ;;; Parsing
 
