@@ -4,11 +4,7 @@
 
 ;;; Input
 
-(defun to-2d-array (lines)
-  (make-array (list (length lines) (length (first lines)))
-              :initial-contents lines))
-
-(defparameter *example* (to-2d-array
+(defparameter *example* (aoc:parse-grid-to-array
                          '("MMMSXXMASM"
                            "MSAMXMSMSA"
                            "AMXSXMAAMM"
@@ -20,7 +16,7 @@
                            "MAMMMXMMMM"
                            "MXMXAXMASX")))
 
-(defparameter *input* (to-2d-array (aoc:input)))
+(defparameter *input* (aoc:parse-grid-to-array (aoc:input)))
 
 ;;; Part 1
 
