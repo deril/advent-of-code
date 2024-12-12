@@ -2,7 +2,8 @@
   (:nicknames #:aoc)
   (:use #:cl
         #:iterate)
-  (:export #:cref
+  (:export #:carray-in-bounds-p
+           #:cref
            #:comma-list
            #:define-day
            #:deftest
@@ -13,6 +14,7 @@
            #:input
            #:integer-string
            #:loop-n-window
+           #:map-set-with
            #:parse-grid-to-array
            #:parse-grid-to-map
            #:submit

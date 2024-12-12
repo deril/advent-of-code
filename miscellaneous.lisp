@@ -4,6 +4,12 @@
   "Use a complex number to index a two-dimensional array."
   (aref array (realpart complex-number) (imagpart complex-number)))
 
+(defun carray-in-bounds-p (array complex-number)
+  "Check if a complex number is within the bounds of a two-dimensional array."
+  (let ((x (realpart complex-number))
+        (y (imagpart complex-number)))
+    (array-in-bounds-p array x y)))
+
 (defun loop-n-window (list n function)
   "Loop over a list with a window of size N, applying FUNCTION to each window."
   (loop for el on list
@@ -73,3 +79,9 @@
   (declare (type (integer 0) num)
            (type (integer 2 36) base))
   (coerce (digit-list num base) 'simple-vector))
+
+(defun map-set-with (map key new-value)
+  "If MAP contains set, updates the set at KEY to also contain NEW-VALUE."
+  (fset:with map key
+             (fset:with (fset:lookup map key)
+                        new-value)))
