@@ -108,3 +108,8 @@
     (for seconds from 0)
     (when (every-robot-has-place-p robots seconds dimensions)
       (return seconds))))
+
+(defun print-the-easter-egg ()
+  (let* ((new-robots (predicted-robot-positions *robots* 8159 *dimensions*))
+         (map (fset:convert 'fset:map new-robots)))
+    (point:print-2d-map map #'(lambda (c) (declare (ignore c)) #\#))))
