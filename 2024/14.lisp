@@ -1,6 +1,6 @@
 (in-package :aoc-2024-14)
 
-(aoc:define-day 231852216 nil)
+(aoc:define-day 231852216 8159)
 
 ;;; Parsing
 
@@ -93,3 +93,18 @@
   (= 12 (get-answer-1 *example-robots* *example-dimensions*)))
 
 ;;; Part 2
+
+(defun every-robot-has-place-p (robots seconds dimensions)
+  (let ((new-robots (fset:empty-set)))
+    (fset:do-seq (robot robots :value new-robots)
+      (destructuring-bind (position velocity) robot
+        (let ((new-position (robot-position-after-time position velocity seconds dimensions)))
+          (if (fset:contains? new-robots new-position)
+              (return nil)
+              (fset:includef new-robots new-position)))))))
+
+(defun get-answer-2 (&optional (robots *robots*) (dimensions *dimensions*))
+  (iter
+    (for seconds from 0)
+    (when (every-robot-has-place-p robots seconds dimensions)
+      (return seconds))))

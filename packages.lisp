@@ -43,7 +43,9 @@
            #:*
            #:<
            #:mod
-           #:turn))
+           #:turn
+           #:bbox
+           #:print-2d-map))
 
 (eval
  `(progn

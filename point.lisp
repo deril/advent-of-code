@@ -134,3 +134,37 @@
      (make-point (cl:aref point 1) (cl:- (cl:aref point 0))))
     (:left
      (make-point (cl:- (cl:aref point 1)) (cl:aref point 0)))))
+
+(defun bbox (points)
+  "Returns two points.  The first contains the smallest values for each
+  set of coordinates; the second, the largest."
+  (declare (type (or null (cons point) fset:collection) points))
+  (values (map-coordinates #'min points)
+          (map-coordinates #'max points)))
+
+(defun print-2d-map (map element-char-fn &key (stream t) (unknown #\ ) highlight)
+  "Prints a representation of MAP to STREAM.  The keys of MAP should be
+  two-coordinate points, with the first coordinate giving the
+  column (increasing to the right) and the second coordinate giving the
+  row (increasing *down*).
+
+  ELEMENT-CHAR-FN should be a function of one argument.  It will be called
+  for each value of MAP.  It should return a character, though anything
+  that can be passed to FORMAT will work.
+
+  UNKNOWN will be used for positions that are not present in MAP.
+
+  HIGHLIGHT is a position that is to be marked in some way to make it stand out."
+  (multiple-value-bind (min-point max-point) (bbox (fset:convert 'list (fset:domain map)))
+    (declare (type (point 2) min-point max-point))
+    (iter (for row from (elt min-point 1) to (elt max-point 1))
+      (iter (for col from (elt min-point 0) to (elt max-point 0))
+        (for position = (make-point col row))
+        (for (values element foundp) = (fset:lookup map position))
+        (format stream "~A" (if foundp
+                                (funcall element-char-fn element)
+                                unknown))
+        (when (and highlight (= highlight position))
+          (princ #\U20DD stream)))
+      (format stream "~%")))
+  (values))
