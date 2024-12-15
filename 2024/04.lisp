@@ -1,6 +1,6 @@
 (in-package :aoc-2024-04)
 
-(aoc:define-day 2358 1737)
+(aoc:define-day 2358 1737) ;;; FIXME (cref)
 
 ;;; Input
 

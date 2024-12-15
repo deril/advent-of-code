@@ -2,7 +2,11 @@
 
 (defun cref (array complex-number)
   "Use a complex number to index a two-dimensional array."
-  (aref array (realpart complex-number) (imagpart complex-number)))
+  (aref array (imagpart complex-number) (realpart complex-number)))
+
+(defun (setf cref) (new-value array complex-number)
+  (setf (aref array (imagpart complex-number) (realpart complex-number))
+        new-value))
 
 (defun carray-in-bounds-p (array complex-number)
   "Check if a complex number is within the bounds of a two-dimensional array."
