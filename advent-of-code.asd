@@ -12,6 +12,7 @@
                :drakma
                :fiveam
                :fset
+               :functional-priority-queues
                :iterate
                :lquery
                :md5

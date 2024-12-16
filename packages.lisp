@@ -17,6 +17,7 @@
            #:map-set-with
            #:parse-grid-to-array
            #:parse-grid-to-map
+           #:shortest-path
            #:submit
            #:test))
 

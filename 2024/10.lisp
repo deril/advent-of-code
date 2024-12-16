@@ -18,6 +18,8 @@
      "10456732")
    :key #'digit-char-p))
 
+;;; Part 1
+
 (defun find-path (map start-pos &optional (check-visited t))
   (let ((seen (fset:empty-set)))
     (labels ((search-path (position height)
