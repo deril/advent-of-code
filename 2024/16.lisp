@@ -76,7 +76,7 @@
 
 (defun path (start maze)
   (aoc:shortest-path (list start #C(1 0))
-                     (lambda (state) (possible-moves state maze))
+                     #'(lambda (state) (possible-moves state maze))
                      :finishedp #'(lambda (state) (finish-maze-p state maze))))
 
 (defun get-answer-1 (&optional (maze *input*))
