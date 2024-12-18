@@ -90,6 +90,10 @@
              (fset:with (fset:lookup map key)
                         new-value)))
 
+(defun manhattan-distance (complex-number &optional (reference 0))
+  (+ (abs (- (realpart complex-number) (realpart reference)))
+     (abs (- (imagpart complex-number) (imagpart reference)))))
+
 (defun shortest-path (start option-fn &key end finishedp test heuristic)
   "Finds the shortest path from START to END.  OPTION-FN should be a
   function that accepts a state and returns a list of `(cost state)` pairs

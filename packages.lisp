@@ -14,6 +14,7 @@
            #:input
            #:integer-string
            #:loop-n-window
+           #:manhattan-distance
            #:map-set-with
            #:parse-grid-to-array
            #:parse-grid-to-map
