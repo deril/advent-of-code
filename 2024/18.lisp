@@ -41,7 +41,7 @@
 
 ;;; Part 1
 
-(defconstant +cardinals+ (list #C(0 1) #C(1 0) #C(0 -1) #C(-1 0)))
+(defparameter +cardinals+ (list #C(0 1) #C(1 0) #C(0 -1) #C(-1 0)))
 
 (defun possible-steps (state corrupted-memory)
   (loop for direction in +cardinals+
