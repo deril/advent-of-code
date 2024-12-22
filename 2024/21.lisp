@@ -1,6 +1,8 @@
 (in-package :aoc-2024-21)
 
 (aoc:define-day 154208 188000493837892) ;; FIXME Remove the hardcoded paths and figure out how to set proper priorities on turns
+;; least turns (this becomes important when escaping the missing cell in both numeric and directional pads).
+;; moving < over ^ over v over >.
 
 ;; Input
 
