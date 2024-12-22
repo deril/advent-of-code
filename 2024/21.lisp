@@ -194,22 +194,13 @@
 ;;       (find-paths start end nil `(,start)))
 ;;     (car (stable-sort shortest-path #'< :key #'length))))
 
-(defparameter *sequence-cache* (make-hash-table :test #'equal))
-
-(defun sequence-length (target-sequence depth)
-  (multiple-value-bind (value exists) (gethash (list target-sequence depth) *sequence-cache*)
-    (if exists
-        value
-        (let ((length 0))
-          (if (zerop depth)
-              (setf length (length target-sequence))
-              (let ((current 'a))
-                (loop for next in target-sequence
-                      for len = (move-count current next depth)
-                      do (setf current next)
-                         (incf length len))))
-          (setf (gethash (list target-sequence depth) *sequence-cache*) length)
-          length))))
+(defmemo:defmemo sequence-length (target-sequence depth)
+  (if (zerop depth)
+      (length target-sequence)
+      (iter
+        (for next in target-sequence)
+        (for current previous next initially 'a)
+        (sum (move-count current next depth)))))
 
 (defun move-count (current next depth)
   (if (eq current next)
@@ -218,24 +209,31 @@
         (sequence-length new-sequence (1- depth)))))
 
 (defun code-to-sequence (code)
-  (append (fset:lookup *shortest-path* `(a ,(digit-char-p (char code 0))))
-          (fset:lookup *shortest-path* `(,(digit-char-p (char code 0))
-                                         ,(digit-char-p (char code 1))))
-          (fset:lookup *shortest-path* `(,(digit-char-p (char code 1))
-                                         ,(digit-char-p (char code 2))))
-          (fset:lookup *shortest-path* `(,(digit-char-p (char code 2)) a))))
+  (let ((digit0 (digit-char-p (char code 0)))
+        (digit1 (digit-char-p (char code 1)))
+        (digit2 (digit-char-p (char code 2))))
+    (append (fset:lookup *shortest-path* `(a ,digit0))
+            (fset:lookup *shortest-path* `(,digit0 ,digit1))
+            (fset:lookup *shortest-path* `(,digit1 ,digit2))
+            (fset:lookup *shortest-path* `(,digit2 a)))))
 
 (defun calculate-score (code robots)
   (* (parse-integer code :junk-allowed t)
-     (sequence-length (code-to-sequence code) (1- robots))))
+     (sequence-length (code-to-sequence code) robots)))
 
 (defun get-answer-1 (&optional (codes *codes*))
-  (reduce #'+ (mapcar (lambda (code) (calculate-score code 3)) codes)))
+  (gmap:gmap
+   (:result :sum)
+   (alexandria:rcurry #'calculate-score 2)
+   (:arg list codes)))
 
 ;; Part 2
 
 (defun get-answer-2 (&optional (codes *codes*))
-  (reduce #'+ (mapcar (lambda (code) (calculate-score code 26)) codes)))
+  (gmap:gmap
+   (:result :sum)
+   (alexandria:rcurry #'calculate-score 25)
+   (:arg list codes)))
 
 ;; (defun shortest-paths (start end pad)
 ;;   (let ((shortest-paths nil)
