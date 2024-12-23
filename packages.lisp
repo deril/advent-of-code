@@ -24,7 +24,8 @@
 
 (defpackage #:permutation
   (:use #:cl)
-  (:export #:visit-permutations))
+  (:export #:visit-permutations
+           #:visit-subsets))
 
 (defpackage #:point
   (:use #:cl

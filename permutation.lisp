@@ -160,3 +160,21 @@ is false, the sequence will be permuted in place."
         (otherwise
          (funcall (build-func-tree (1- n) nil nil))))
       (values))))
+
+(defgeneric visit-subsets (visit-fn collection subset-size)
+  (:documentation
+   "VISIT-FN will be called once for each subset.  It will be passed an
+   FSet bag."))
+
+(defmethod visit-subsets (visit-fn (collection fset:seq) subset-size)
+  (declare (type function visit-fn)
+           (type (integer 0) subset-size))
+  (labels ((visit-r (remaining-items remaining-size result)
+             (if (zerop remaining-size)
+                 (funcall visit-fn result)
+                 (fset:do-seq (element remaining-items :index i :end (1+ (- (fset:size remaining-items) remaining-size)))
+                   (visit-r (fset:subseq remaining-items (1+ i))
+                            (1- remaining-size)
+                            (fset:with result element))))))
+    (visit-r collection subset-size (fset:empty-bag))
+    (values)))
