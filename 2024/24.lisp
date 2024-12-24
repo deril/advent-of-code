@@ -9,7 +9,7 @@
   (:string)
   (:lambda (wire) (read-from-string wire)))
 
-(parseq:defrule resolved-wire ()
+(parseq:defrule register ()
     (and wire ": " (aoc:integer-string))
   (:choose 0 2))
 
@@ -30,10 +30,10 @@
             (subseq input (1+ split)))))
 
 (defun parse-input (input)
-  (multiple-value-bind (resolved unresolved) (split-input input)
+  (multiple-value-bind (registers gates) (split-input input)
     (list
-     (mapcar (alexandria:curry #'parseq:parseq 'resolved-wire) resolved)
-     (mapcar (alexandria:curry #'parseq:parseq 'binary-gate) unresolved))))
+     (mapcar (alexandria:curry #'parseq:parseq 'register) registers)
+     (mapcar (alexandria:curry #'parseq:parseq 'binary-gate) gates))))
 
 (defparameter *input* (parse-input (aoc:input)))
 
@@ -118,30 +118,29 @@
             (setf (gethash out cache) value)))))
     value))
 
-(defun calculate-result (resolved unresolved wire-prefix)
+(defun calculate-result (registers gates)
   (let ((cache (make-hash-table)))
-    (dolist (wire resolved)
+    (dolist (wire registers)
       (destructuring-bind (name value) wire
         (setf (gethash name cache) value)))
     (let ((gates (mapcar #'(lambda (gate-data)
                              (destructuring-bind (a b op out) gate-data
                                (make-gate :a a :op op :b b :out out)))
-                         unresolved)))
+                         gates)))
       (loop
         (when (null gates) (return))
         (setf gates (remove-if #'(lambda (gate) (compute gate cache)) gates :from-end t))))
     (loop with result = 0
           for name being the hash-keys of cache
           for value being the hash-values of cache
-          when (alexandria:starts-with wire-prefix (symbol-name name))
+          when (alexandria:starts-with #\Z (symbol-name name))
             do (let ((index (parse-integer (subseq (symbol-name name) 1))))
                  (setf result (dpb value (byte 1 index) result)))
           finally (return result))))
 
 (defun get-answer-1 (&optional (input *input*))
-  (reset-cache)
-  (destructuring-bind (resolved unresolved) input
-    (calculate-result resolved unresolved #\Z)))
+  (destructuring-bind (registers gates) input
+    (calculate-result registers gates)))
 
 (aoc:given 1
   (= 4 (get-answer-1 *example*))
