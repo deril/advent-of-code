@@ -133,9 +133,34 @@
           (write-string (string-right-trim '(#\NewLine) data) cache))))
     cache-file))
 
-(defun input (&key year day parse-line)
+(defun filename-relative-to-year (year filename)
+  (merge-pathnames filename
+                   (asdf:system-relative-pathname 'advent-of-code
+                                                  (format nil "~4,'0D/" year))))
+
+(defun input (&key year day file parse-line)
   "Fetches and returns for a problem. Call with no parameters to
 fetch the Advent of Code input associated with the current package.
+
+## Input Source Selection
+
+YEAR, DAY, and FILE select the source of the input data. DAY and FILE
+are mutually exclusive.
+
+If FILE is provided, it should be a pathname or namestring for a file
+existing on the system.  Relative pathnames will be resolved relative to
+the directory corresponding to the YEAR parameter.  If no YEAR parameter
+is proved, its value will be taken from the name of the current package.
+The contents of the file will be returned, after any requested
+parsing (for which see below).
+
+If DAY is provided, or if no source-selection-related parameters are
+provided, the official Advent of Code input for the given year and day
+will be downloaded and cached.  If YEAR and/or DAY is not provided,
+appropriate values will be extracted from the current package name.  The
+input will be optionally parsed (see below) and returned.
+
+## Parsing
 
 If PARSE-LINE is not provided, the data will be split at any newlines
 and returned as a list of strings. If there are no newlines, a single
@@ -146,10 +171,13 @@ input will be split at newlines and the parsing rule will be applied
 separately to each line. If any line fails to parse, an error will be
 signaled."
 
+  (when (< 1 (count-if #'identity (list day file)))
+    (error "FILE and DAY are mutually exclusive"))
   (let ((real-day (or day (get-current-day)))
         (real-year (or year (get-current-year))))
     (let ((input-file
             (cond
+              (file (filename-relative-to-year real-year file))
               (t (fetch-input real-day real-year)))))
       (cond
         (parse-line
