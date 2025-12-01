@@ -42,6 +42,7 @@
 (5am:def-suite :aoc-2023 :in :aoc-all)
 (5am:def-suite :aoc-2015 :in :aoc-all)
 (5am:def-suite :aoc-2024 :in :aoc-all)
+(5am:def-suite :aoc-2025 :in :aoc-all)
 ;; DEFSUITE-MARKER - Do not edit this line.
 
 (defun 5am-year-suite ()

@@ -25,6 +25,6 @@
                           (:file "point")
                           (:file "miscellaneous")
                           (:file "advent-of-code"))
-                        (loop for year in '(2015 2023 2024) ; YEAR-MARKER - do not edit this line.
+                        (loop for year in '(2015 2023 2024 2025) ; YEAR-MARKER - do not edit this line.
                               append (loop for n from 1 to 25
                                            collect (list :file (format nil "~D/~2,'0D" year n))))))
