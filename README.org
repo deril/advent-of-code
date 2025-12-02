@@ -1,1 +1,5 @@
 #+title: This repository contains solutions for the [[https://adventofcode.com/][Advent of Code]] event.
+
+I created these solutions using Common Lisp, showcasing various programming techniques and problem-solving skills.
+
+Each solution is organized by day and includes both the problem description and the corresponding code implementation. Feel free to explore the code, learn from it, and use it as a reference for your own projects.
