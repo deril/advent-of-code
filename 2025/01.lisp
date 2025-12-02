@@ -29,19 +29,19 @@
       (#\R magnitude)
       (#\L (- magnitude)))))
 
-(defun next-position (pos delta)
-  (mod (+ pos delta) +dial-size+))
+(defun count-zero-arrivals (pos delta)
+  (declare (ignore delta))
+  (if (zerop pos) 1 0))
 
-(defun count-zero-arrivals (pos next-pos delta)
-  (declare (ignore pos delta))
-  (if (zerop next-pos) 1 0))
-
-(defun get-answer-1 (&optional (instructions *rotations*))
+(defun count-ticks (instructions count-fn)
   (iter (for instruction in instructions)
     (for delta = (parse-instruction instruction))
     (for pos initially +start-position+
-         then (next-position pos delta))
-    (count (zerop pos))))
+         then (mod (+ pos delta) +dial-size+))
+    (sum (funcall count-fn pos delta))))
+
+(defun get-answer-1 (&optional (instructions *rotations*))
+  (count-ticks instructions #'count-zero-arrivals))
 
 
 (aoc:given 1
@@ -57,12 +57,7 @@
            +dial-size+)))
 
 (defun get-answer-2 (&optional (instructions *rotations*))
-  (iter (for instruction in instructions)
-    (for pos initially +start-position+
-         then next-pos)
-    (for delta = (parse-instruction instruction))
-    (for next-pos = (next-position pos delta))
-    (sum (count-boundary-crossings pos delta))))
+  (count-ticks instructions #'count-boundary-crossings))
 
 (aoc:given 2
   (= 6 (get-answer-2 *example*)))
