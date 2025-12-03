@@ -2,38 +2,35 @@
 
 (aoc:define-day 17281 171388730430281)
 
-;;; Parsing
-
-(defun string-to-digits (number-string)
-  (map 'simple-vector #'digit-char-p number-string))
-
 ;;; Input
 
-(defparameter *banks*
-  (mapcar #'string-to-digits
-          (aoc:input)))
+(defparameter *banks* (aoc:input))
 (defparameter *example-banks*
-  (mapcar #'string-to-digits
-          '("987654321111111"
-            "811111111111119"
-            "234234234234278"
-            "818181911112111")))
+  '("987654321111111"
+    "811111111111119"
+    "234234234234278"
+    "818181911112111"))
 
 ;;; Part 1
 
 (defun max-jultage (bank n)
-  (let ((len (length bank))
-        (dp (make-array n :initial-element 0)))
-    (dotimes (i len)
-      (let ((digit (svref bank i)))
-        (loop for pos downfrom (1- (min (1+ i) n)) to 0 do
-          (let ((candidate (if (zerop pos)
-                               digit
-                               (+ (* (aref dp (1- pos)) 10) digit))))
-            (when (> candidate (aref dp pos))
-              (setf (aref dp pos) candidate))))))
-    (aref dp (1- n))))
-
+  (let ((batteries-to-drop (- (length bank) n))
+        (stack nil))
+    (loop for battery across bank do
+      ;; remove smaller batteries from stack while we can
+      (loop while (and stack
+                       (char< (car stack) battery)
+                       (plusp batteries-to-drop))
+            do
+               (pop stack)
+               (decf batteries-to-drop))
+      (push battery stack))
+    ;; if we still need to remove baterries, remove from end
+    (loop while (plusp batteries-to-drop) do
+      (pop stack)
+      (decf batteries-to-drop))
+    (let ((result-list (nreverse stack)))
+      (parse-integer (coerce result-list 'string)))))
 
 (defun get-answer-1 (&optional (banks *banks*))
   (loop for bank in banks
