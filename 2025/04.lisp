@@ -88,8 +88,8 @@
 ;;; Part 2
 
 (defun get-answer-2 (&optional (diagram *diagram*))
-  (loop with current-diagram = diagram
-        for (removed-count current-diagram) = (multiple-value-list (optimize-worklifts current-diagram))
+  (loop for (removed-count current-diagram) = (multiple-value-list (optimize-worklifts diagram))
+          then (multiple-value-list (optimize-worklifts current-diagram))
         sum removed-count into total-removed
         while (> removed-count 0)
         finally (return total-removed)))
